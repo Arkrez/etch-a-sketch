@@ -1,6 +1,7 @@
+
+//Creating references to buttons/other html elements
 const body = document.querySelector('body');
 const actionContainer = document.querySelector('.container');
-
 const eraser = document.querySelector('.eraser');
 const draw = document.querySelector('.draw');
 const clear = document.querySelector('.clear');
@@ -8,7 +9,7 @@ const undo = document.querySelector('.undo');
 const redo = document.querySelector('.redo');
 const color = document.querySelector('.color');
 const rainbow = document.querySelector('.rainbow');
-
+//Container/logic for undo/redo/eraser
 let undoStack = {};
 let redoStack = {};
 let redoStep = -1;
@@ -18,21 +19,23 @@ let undoStep = -1;
 let ran = false;
 let canDraw = false;
 let lastSize = 16;
-let newBoardVal = 1;
 let isBoardUpdated = true;
-let rbgVal = `rgb(${0}, ${0}, ${0})` 
+let rgbVal = `rgb(${0}, ${0}, ${0})`;
 let rainbowMode = true;
+//Keeping track of mouse down and up so that we can drag and draw
 document.body.onmousedown = ()=>(canDraw = true);
 document.body.onmouseup = ()=>{
     canDraw = false; 
     
     if(!isBoardUpdated){ 
-        initBoard(newBoardVal); 
+        console.log("wat");
+        initBoard(lastSize); 
         isBoardUpdated = true;
         
     }
 };
 
+//create board based on input, board is made of divs and gets appended to the .continer class
 const initBoard = function (size = 32) {
     if(ran)
     {
@@ -69,6 +72,7 @@ const initBoard = function (size = 32) {
     }
     ran = true;
 }
+//Changes color of tile and keeps track of original and changed color
 function changeColor(e){
     if(e.type === 'mouseover' && !canDraw) return;
     undoStep++;
@@ -79,10 +83,16 @@ function changeColor(e){
     
     if(!toggleEraserOn)
     {
-        if(rainbow)
-            rbgVal = UpdateColorRainbow();
-        this.style.backgroundColor = rbgVal;
-        const changedTile = [this, rbgVal];
+        
+        if(rainbowMode)
+        {
+            rgbVal = UpdateColor();
+        }
+        
+            
+        console.log(rgbVal);
+        this.style.backgroundColor = rgbVal;
+        const changedTile = [this, rgbVal];
         undoStack[undoStep] = [originalTile, changedTile];
     }
     else
@@ -99,12 +109,18 @@ function changeColor(e){
 
 
 initBoard();
-function UpdateColorRainbow()
+
+//updating color to random color
+function UpdateColor()
 {
-    r = Math.round(Math.random() * 256);
-    g = Math.round(Math.random() * 256);
-    b = Math.round(Math.random() * 256);
-    return rbgVal = `rgb(${r}, ${g}, ${b})`
+    if(rainbowMode)
+    {
+        r = Math.round(Math.random() * 256);
+        g = Math.round(Math.random() * 256);
+        b = Math.round(Math.random() * 256);
+    }
+    
+    return rgbVal = `rgb(${r}, ${g}, ${b})`
 }
 var slider = document.getElementById("myRange");
 var output = document.getElementById("demo");
@@ -114,12 +130,13 @@ output.innerHTML = `${slider.value} x ${slider.value}`; // Display the default s
 slider.oninput = function() {
   output.innerHTML = `${this.value} x ${this.value}`;
   isBoardUpdated = false;
-  newBoardVal = this.value;
+  lastSize = this.value;
   
 }
 
+//event listeners for buttons
 eraser.addEventListener('click', ()=>{toggleEraserOn = true;})
-draw.addEventListener('click', ()=>{toggleEraserOn = false;})
+draw.addEventListener('click', ()=>{rainbowMode = false; toggleEraserOn = false;})
 undo.addEventListener('click', ()=>{
     if(undoStep < 0)
         return;
@@ -150,3 +167,4 @@ clear.addEventListener('click', () => {
 
 color.addEventListener('click', ()=>{});
 rainbow.addEventListener('click', () =>{rainbowMode = true;})
+
