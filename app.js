@@ -6,23 +6,36 @@ const draw = document.querySelector('.draw');
 const clear = document.querySelector('.clear');
 const undo = document.querySelector('.undo');
 const redo = document.querySelector('.redo');
-const re8 = document.querySelector('.re8');
-const re16 = document.querySelector('.re16');
-const re32 = document.querySelector('.re32');
-const re64 = document.querySelector('.re64');
-const re128 = document.querySelector('.re128');
+const color = document.querySelector('.color');
+const rainbow = document.querySelector('.rainbow');
+
 let undoStack = {};
 let redoStack = {};
-let toggle = false;
+let toggleEraserOn = false;
 let undoStep = -1;
 let redoStep = -1;
 let ran = false;
 let canDraw = false;
 let lastSize = 16;
+let newBoardVal = 1;
+let isBoardUpdated = true;
+let red = 0;
+let blue = 0;
+let green = 0;
+let rbgVal = `rgb(${red}, ${green}, ${blue})` 
+let rainbowMode = true;
 document.body.onmousedown = ()=>(canDraw = true);
-document.body.onmouseup = ()=>{canDraw = false;};
+document.body.onmouseup = ()=>{
+    canDraw = false; 
+    
+    if(!isBoardUpdated){ 
+        initBoard(newBoardVal); 
+        isBoardUpdated = true;
+        
+    }
+};
 
-const initBoard = function (size = 16) {
+const initBoard = function (size = 32) {
     if(ran)
     {
         actionContainer.removeChild(document.querySelector('.tileContainer'));
@@ -40,6 +53,7 @@ const initBoard = function (size = 16) {
             div.classList.add('tile');
             div.style.width = 512/size + 'px';
             div.style.height = 512/size +'px';
+            div.style.backgroundColor = "white";
             bigDiv.appendChild(div);
         }
         tileContainer.appendChild(bigDiv)
@@ -62,17 +76,19 @@ function changeColor(e){
     undoStep++;   
     redoStep = -1;
     
-    const changedTile = [this, toggle];
+    const changedTile = [this, this.style.backgroundColor];
     
-    if(!toggle)
+    if(!toggleEraserOn)
     {
-        this.classList.add('blue');
+        if(rainbow)
+            rbgVal = UpdateColorRainbow();
+        this.style.backgroundColor = rbgVal;
         undoStack[undoStep] = changedTile;
     }
     else
     {
         undoStack[undoStep] = changedTile;
-        this.classList.remove('blue');
+        this.style.backgroundColor = "white";
     }
 }
 
@@ -83,20 +99,38 @@ function changeColor(e){
 
 
 initBoard();
+function UpdateColorRainbow()
+{
+    r = Math.round(Math.random() * 256);
+    g = Math.round(Math.random() * 256);
+    b = Math.round(Math.random() * 256);
+    return rbgVal = `rgb(${r}, ${g}, ${b})`
+}
+var slider = document.getElementById("myRange");
+var output = document.getElementById("demo");
+output.innerHTML = `${slider.value} x ${slider.value}`; // Display the default slider value
 
+// Update the current slider value (each time you drag the slider handle)
+slider.oninput = function() {
+  output.innerHTML = `${this.value} x ${this.value}`;
+  isBoardUpdated = false;
+  newBoardVal = this.value;
+  
+}
 
-
-eraser.addEventListener('click', ()=>{toggle = true;})
-draw.addEventListener('click', ()=>{toggle = false;})
+eraser.addEventListener('click', ()=>{toggleEraserOn = true;})
+draw.addEventListener('click', ()=>{toggleEraserOn = false;})
 undo.addEventListener('click', ()=>{
     if(undoStep < 0)
         return;
     redoStep++;
     
-    if(!undoStack[undoStep][1])
-        undoStack[undoStep][0].classList.remove('blue')
-    else
-        undoStack[undoStep][0].classList.add('blue');
+    
+    const tileToRevert = undoStack[undoStep];
+
+    tileToRevert[0].style.backgroundColor = tileToRevert[1];
+    
+    
     redoStack[redoStep] = undoStack[undoStep];
     delete undoStack[undoStep]
     
@@ -123,24 +157,5 @@ clear.addEventListener('click', () => {
     initBoard(lastSize);
 });
 
-re8.addEventListener('click', () => {
-    initBoard(8);
-    lastSize = 8;
-})
-re16.addEventListener('click', () => {
-    initBoard(16);
-    lastSize = 16;
-})
-re32.addEventListener('click', () => {
-    initBoard(32);
-    lastSize = 32;
-})
-re64.addEventListener('click', () => {
-    initBoard(64);
-    lastSize = 64;
-})
-re128.addEventListener('click', () => {
-    initBoard(128);
-    lastSize = 128;
-})
-
+color.addEventListener('click', ()=>{});
+rainbow.addEventListener('click', () =>{rainbowMode = true;})
