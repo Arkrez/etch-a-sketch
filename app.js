@@ -11,18 +11,16 @@ const rainbow = document.querySelector('.rainbow');
 
 let undoStack = {};
 let redoStack = {};
+let redoStep = -1;
 let toggleEraserOn = false;
 let undoStep = -1;
-let redoStep = -1;
+
 let ran = false;
 let canDraw = false;
 let lastSize = 16;
 let newBoardVal = 1;
 let isBoardUpdated = true;
-let red = 0;
-let blue = 0;
-let green = 0;
-let rbgVal = `rgb(${red}, ${green}, ${blue})` 
+let rbgVal = `rgb(${0}, ${0}, ${0})` 
 let rainbowMode = true;
 document.body.onmousedown = ()=>(canDraw = true);
 document.body.onmouseup = ()=>{
@@ -73,21 +71,23 @@ const initBoard = function (size = 32) {
 }
 function changeColor(e){
     if(e.type === 'mouseover' && !canDraw) return;
-    undoStep++;   
+    undoStep++;
+    redoStack={};   
     redoStep = -1;
     
-    const changedTile = [this, this.style.backgroundColor];
+    const originalTile = [this, this.style.backgroundColor];
     
     if(!toggleEraserOn)
     {
         if(rainbow)
             rbgVal = UpdateColorRainbow();
         this.style.backgroundColor = rbgVal;
-        undoStack[undoStep] = changedTile;
+        const changedTile = [this, rbgVal];
+        undoStack[undoStep] = [originalTile, changedTile];
     }
     else
     {
-        undoStack[undoStep] = changedTile;
+        undoStack[undoStep] = [originalTile, [this, "white"]];
         this.style.backgroundColor = "white";
     }
 }
@@ -123,34 +123,25 @@ draw.addEventListener('click', ()=>{toggleEraserOn = false;})
 undo.addEventListener('click', ()=>{
     if(undoStep < 0)
         return;
-    redoStep++;
-    
-    
     const tileToRevert = undoStack[undoStep];
-
-    tileToRevert[0].style.backgroundColor = tileToRevert[1];
-    
-    
-    redoStack[redoStep] = undoStack[undoStep];
+    redoStack[++redoStep] = tileToRevert;
+    tileToRevert[1][0].style.backgroundColor = tileToRevert[0][1];
     delete undoStack[undoStep]
-    
     undoStep--;
+    
 });
 redo.addEventListener('click', ()=>{
-    if(redoStep === -1)
-        redoStack = {};
-    if(redoStep < 0)
-        return;
-    undoStep++;
-    
-    if(redoStack[redoStep][1])
+    if(redoStep < 0 || !redoStack)
     {
-        redoStack[redoStep][0].classList.remove('blue');
+        redoStep = -1;
+        redoStack = {};
+        return;
     }
-    else
-        redoStack[redoStep][0].classList.add('blue');
-    undoStack[undoStep] = redoStack[redoStep];
-    delete redoStack[redoStep];
+    undoStep++;
+    const tileToRevert = redoStack[redoStep];
+    tileToRevert[0][0].style.backgroundColor = tileToRevert[1][1];
+    undoStack[undoStep] = tileToRevert;
+    delete tileToRevert;
     redoStep--;
 });
 clear.addEventListener('click', () => {
