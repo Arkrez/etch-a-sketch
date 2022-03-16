@@ -3,6 +3,7 @@ const actionContainer = document.querySelector('.container');
 
 const eraser = document.querySelector('.eraser');
 const draw = document.querySelector('.draw');
+const clear = document.querySelector('.clear');
 const undo = document.querySelector('.undo');
 const redo = document.querySelector('.redo');
 const re8 = document.querySelector('.re8');
@@ -16,6 +17,10 @@ let toggle = false;
 let undoStep = -1;
 let redoStep = -1;
 let ran = false;
+let canDraw = false;
+let lastSize = 16;
+document.body.onmousedown = ()=>(canDraw = true);
+document.body.onmouseup = ()=>{canDraw = false;};
 
 const initBoard = function (size = 16) {
     if(ran)
@@ -33,6 +38,8 @@ const initBoard = function (size = 16) {
         {
             const div = document.createElement("div");
             div.classList.add('tile');
+            div.style.width = 512/size + 'px';
+            div.style.height = 512/size +'px';
             bigDiv.appendChild(div);
         }
         tileContainer.appendChild(bigDiv)
@@ -43,27 +50,37 @@ const initBoard = function (size = 16) {
     const tiles = document.querySelectorAll('.tile');
     for(const tile of tiles)
     {
-        tile.addEventListener('click', ()=>changeColor(tile));
+        tile.addEventListener('mousedown', changeColor);
+        tile.addEventListener('mouseover', changeColor);
+        
+
     }
     ran = true;
 }
-const changeColor = function(tile){
+function changeColor(e){
+    if(e.type === 'mouseover' && !canDraw) return;
     undoStep++;   
     redoStep = -1;
-    const changedTile = [tile, toggle];
+    
+    const changedTile = [this, toggle];
     
     if(!toggle)
     {
-        tile.classList.add('blue');
+        this.classList.add('blue');
         undoStack[undoStep] = changedTile;
     }
     else
     {
         undoStack[undoStep] = changedTile;
-        tile.classList.remove('blue');
+        this.classList.remove('blue');
     }
-    
 }
+
+    
+
+
+
+
 
 initBoard();
 
@@ -102,20 +119,28 @@ redo.addEventListener('click', ()=>{
     delete redoStack[redoStep];
     redoStep--;
 });
+clear.addEventListener('click', () => {
+    initBoard(lastSize);
+});
 
 re8.addEventListener('click', () => {
     initBoard(8);
+    lastSize = 8;
 })
 re16.addEventListener('click', () => {
     initBoard(16);
+    lastSize = 16;
 })
 re32.addEventListener('click', () => {
     initBoard(32);
+    lastSize = 32;
 })
 re64.addEventListener('click', () => {
     initBoard(64);
+    lastSize = 64;
 })
 re128.addEventListener('click', () => {
     initBoard(128);
+    lastSize = 128;
 })
 

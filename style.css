@@ -1,7 +1,6 @@
 .tile {
     display: flex;
-    width: 25px;
-    height: 25px;
+    
     background-color: white;
     
 }
@@ -22,4 +21,6 @@ ul{
 }
 .container{
     display: flex;
+    align-items: center;
+    justify-content: center;
 }
