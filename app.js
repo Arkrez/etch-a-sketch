@@ -28,7 +28,7 @@ document.body.onmouseup = ()=>{
     canDraw = false; 
     
     if(!isBoardUpdated){ 
-        console.log("wat");
+       
         initBoard(lastSize); 
         isBoardUpdated = true;
         
@@ -90,7 +90,7 @@ function changeColor(e){
         }
         
             
-        console.log(rgbVal);
+        
         this.style.backgroundColor = rgbVal;
         const changedTile = [this, rgbVal];
         undoStack[undoStep] = [originalTile, changedTile];
@@ -136,7 +136,7 @@ slider.oninput = function() {
 
 //event listeners for buttons
 eraser.addEventListener('click', ()=>{toggleEraserOn = true;})
-draw.addEventListener('click', ()=>{rainbowMode = false; toggleEraserOn = false;})
+draw.addEventListener('click', ()=>{rainbowMode = false; toggleEraserOn = false; canDraw})
 undo.addEventListener('click', ()=>{
     if(undoStep < 0)
         return;
@@ -166,5 +166,5 @@ clear.addEventListener('click', () => {
 });
 
 color.addEventListener('click', ()=>{});
-rainbow.addEventListener('click', () =>{rainbowMode = true;})
+rainbow.addEventListener('click', () =>{rainbowMode = true; canDraw = true;})
 
