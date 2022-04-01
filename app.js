@@ -9,6 +9,7 @@ const undo = document.querySelector('.undo');
 const redo = document.querySelector('.redo');
 const color = document.querySelector('.color');
 const rainbow = document.querySelector('.rainbow');
+const currentColor = document.querySelector('.current-color');
 //Container/logic for undo/redo/eraser
 let undoStack = {};
 let redoStack = {};
@@ -109,7 +110,13 @@ function changeColor(e){
 
 
 initBoard();
-
+function ColorToHex(color) {
+    var hexadecimal = color.toString(16);
+    return hexadecimal.length == 1 ? "0" + hexadecimal : hexadecimal;
+  }
+function ConvertRGBtoHex(red, green, blue) {
+    return "#" + ColorToHex(red) + ColorToHex(green) + ColorToHex(blue);
+  }
 //updating color to random color
 function UpdateColor()
 {
@@ -119,8 +126,8 @@ function UpdateColor()
         g = Math.round(Math.random() * 256);
         b = Math.round(Math.random() * 256);
     }
-    
-    return rgbVal = `rgb(${r}, ${g}, ${b})`
+    currentColor.value = ConvertRGBtoHex(r, g, b);
+    return rgbVal = `rgb(${r}, ${g}, ${b})`;
 }
 var slider = document.getElementById("myRange");
 var output = document.getElementById("demo");
